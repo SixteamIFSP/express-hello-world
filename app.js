@@ -1,59 +1,62 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const port = process.env.PORT || 3001;
+const bodyParser = require('body-parser');
 
-app.get("/", (req, res) => res.type('html').send(html));
+const rotaUsuario = require('./routes/users');
+const rotaTurma = require('./routes/turmas');
+const rotaDesempenho = require('./routes/desempenho');
+const rotaImagem = require('./routes/image');
+const rotaAula = require('./routes/aulas');
+const rotaTriagem = require('./routes/triagem');
+const rotaDashboard = require('./routes/dashboard');
+const rotaEmail = require('./routes/email');
+const rotaMaterialExtra = require('./routes/materialExtra');
+const rotaNotificacao = require('./routes/notificacaoPush');
+const rotaAluno = require('./routes/alunos');
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header(
+        'Access-Control-Allow-Header', 
+        'Origin','X-Requested-With', 'Content-Type', 'Accept', 'Authorization' 
+    );
+    res.header('Cache-Control', 'max-age=31536000');
+    res.header('X-Frame-Options', 'DENY');
+    res.header('X-XSS-Protection', '1, mode=block');
+    res.header('X-Content-Type-Options', 'nosniff');
+    res.header('Strict-Transport-Security', 'max-age=63072000, includeSubDomains, preload');
+    res.header('Referrer-Policy', 'no-referrer, strict-origin-when-cross-origin');
+    res.header('Content-Security-Policy', "frame-ancestors 'none'");
+    res.header('Permissions-Policy', 'interest-cohort=()');
+    if(req.method === 'OPTIONS'){
+        res.header('Acess-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+        return res.status(200).send({});
+    }
+    next();
+});
+
+app.get('/', (req, res) => {
+  res.send('SERVIDOR FUNCIONANDO');
+});
+app.use('/user', rotaUsuario);
+app.use('/turma', rotaTurma);
+app.use('/desempenho', rotaDesempenho);
+app.use('/imagem', rotaImagem);
+app.use('/aula', rotaAula);
+app.use('/triagem', rotaTriagem);
+app.use('/dashboard', rotaDashboard);
+app.use('/email', rotaEmail);
+app.use('/materialExtra', rotaMaterialExtra);
+app.use('/mensagem', rotaNotificacao);
+app.use('/aluno', rotaAluno);
 
 
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render!</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    </script>
-    <style>
-      @import url("https://p.typekit.net/p.css?s=1&k=vnd5zic&ht=tk&f=39475.39476.39477.39478.39479.39480.39481.39482&a=18673890&app=typekit&e=css");
-      @font-face {
-        font-family: "neo-sans";
-        src: url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("opentype");
-        font-style: normal;
-        font-weight: 700;
-      }
-      html {
-        font-family: neo-sans;
-        font-weight: 700;
-        font-size: calc(62rem / 16);
-      }
-      body {
-        background: white;
-      }
-      section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-  </head>
-  <body>
-    <section>
-      Hello from Render!
-    </section>
-  </body>
-</html>
-`
+
+const port = (process.env.PORT || 3000);
+
+app.listen(port, () => {
+    console.log(`server started on port ${port}`);
+});
